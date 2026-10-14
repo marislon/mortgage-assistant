@@ -1,0 +1,16 @@
+# Секреты и локальные настройки
+.env
+.env.*
+!.env.example
+
+# Виртуальное окружение
+.venv/
+
+# Кеш Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+
+# Настройки PyCharm
+.idea/

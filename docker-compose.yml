@@ -1,0 +1,24 @@
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: mortgage-postgres
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+      POSTGRES_DB: app
+    ports:
+      - "5434:5432"
+    volumes:
+      - mortgage_pgdata:/var/lib/postgresql/data
+
+  temporal:
+    image: temporalio/temporal:latest
+    container_name: mortgage-temporal
+    command: server start-dev --ip 0.0.0.0
+    ports:
+      - "7233:7233"
+      - "8233:8233"
+
+volumes:
+  mortgage_pgdata:
