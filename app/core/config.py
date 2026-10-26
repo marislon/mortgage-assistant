@@ -15,6 +15,6 @@ class Settings(BaseSettings):
     llm_max_retries: int = 3
     agent_max_turns: int = 6
     agent_timeout_s: float = 300.0
-
+    agent_confidence_threshold: float = 0.7
 
 settings = Settings()

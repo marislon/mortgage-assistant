@@ -1,4 +1,4 @@
-.PHONY: install infra migrate api lint test
+.PHONY: install infra migrate api lint test worker
 
 install:
 	uv sync --frozen
@@ -17,3 +17,6 @@ lint:
 
 test:
 	uv run pytest -q
+
+worker:
+	uv run python -m app.workflows.worker

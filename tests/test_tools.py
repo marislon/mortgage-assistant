@@ -4,7 +4,13 @@ import pytest
 from agents import RunContextWrapper
 from agents.tool_context import ToolContext
 
-from app.agents.tools import TOOLS, ClientContext, simulate_early_repayment
+from app.agents import tools as agent_tools
+from app.agents.tools import (
+    TOOLS,
+    ClientContext,
+    request_payment_day_change,
+    simulate_early_repayment,
+)
 
 
 def test_model_cannot_choose_loan():
@@ -28,3 +34,48 @@ async def test_simulate_uses_calculator():
 
 def test_context_wrapper_carries_loan():
     assert RunContextWrapper(ClientContext(7)).context.loan_id == 7
+
+@pytest.mark.asyncio
+async def test_request_payment_day_change(monkeypatch):
+    calls = []
+
+    async def fake_create_application(
+        loan_id,
+        new_day,
+        idempotency_key,
+    ):
+        calls.append((loan_id, new_day, idempotency_key))
+        return {
+            "application_id": 100,
+            "status": "waiting_employee",
+        }
+
+    monkeypatch.setattr(
+        agent_tools,
+        "create_payment_day_application",
+        fake_create_application,
+    )
+
+    result = await call(
+        request_payment_day_change,
+        loan_id=4,
+        new_day=25,
+    )
+
+    assert result["application_id"] == 100
+    assert result["status"] == "waiting_employee"
+    assert calls == [
+        (4, 25, "agent-payment-day-4-25")
+    ]
+    result_again = await call(
+        request_payment_day_change,
+        loan_id=4,
+        new_day=25,
+    )
+
+    assert result_again == result
+
+    assert calls == [
+        (4, 25, "agent-payment-day-4-25"),
+        (4, 25, "agent-payment-day-4-25"),
+    ]
